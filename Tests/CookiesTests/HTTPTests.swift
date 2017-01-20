@@ -2,6 +2,7 @@ import XCTest
 @testable import Cookies
 import HTTP
 import URI
+import Vapor
 
 class HTTPTests: XCTestCase {
     static let allTests = [
@@ -31,6 +32,15 @@ class HTTPTests: XCTestCase {
         let request = Request()
         request.cookies = cookies
         XCTAssertEqual(request.headers["cookie"], "leet=1337; life=42")
+    }
+    
+    func testCallingQueryOnRequestWithURIParserCreatedURIContainingPercentEncodedPlusShouldNotReplaceWithSpace() throws {
+        let bytes = "/callback?code=hello%2Bworld".bytes
+        let uri = try URIParser.parse(bytes: bytes, existingHost: "localhost:8080")
+        let request = Request()
+        request.uri = uri
+        
+        XCTAssertEqual(request.query?["code"]?.string, "hello+world")
     }
 
     func testResponseParse() throws {
